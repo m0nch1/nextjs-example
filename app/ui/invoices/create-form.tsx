@@ -1,3 +1,5 @@
+'use client';
+
 import { CustomerField } from '@/app/lib/definitions';
 import Link from 'next/link';
 import {
@@ -7,10 +9,24 @@ import {
   UserCircleIcon,
 } from '@heroicons/react/24/outline';
 import { Button } from '@/app/ui/button';
+import { createInvoice, type State } from '../../lib/actions';
+import { useActionState } from 'react';
+
+const initialState: State = { message: null };
 
 export default function Form({ customers }: { customers: CustomerField[] }) {
+  const [state, formAction, isPending] = useActionState(
+    createInvoice,
+    initialState,
+  );
+
   return (
-    <form>
+    <form action={formAction}>
+      {state.message && (
+        <div className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-800">
+          {state.message}
+        </div>
+      )}
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
         {/* Customer Name */}
         <div className="mb-4">
@@ -105,7 +121,9 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
         >
           Cancel
         </Link>
-        <Button type="submit">Create Invoice</Button>
+        <Button type="submit" disabled={isPending}>
+          Create Invoice
+        </Button>
       </div>
     </form>
   );
